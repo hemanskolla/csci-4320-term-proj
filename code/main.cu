@@ -11,8 +11,8 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
     //input and output file names
-    const char* input_filename = "data/input_image_data.bin";
-    const char* output_filename = "data/output_image_data.bin";
+    const char* input_filename = "DATA_INPUT_FILE"; //CHANGE
+    const char* output_filename = "DATA_OUTPUT_FILE"; //CHANGE
 
     //number of bytes to read/write per process
     size_t local_data_size = 1024; 
