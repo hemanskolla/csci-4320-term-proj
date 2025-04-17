@@ -2,7 +2,16 @@
 #define KERNELS_H
 
 #include <stddef.h>
+#include <cuda_runtime.h>
 
-void launchImageProcessingKernel(unsigned char *d_data, size_t data_size);
+void launchGaussianBlur(unsigned char* d_in,
+                        unsigned char* d_out,
+                        int width, int height,
+                        cudaStream_t stream);
+
+void launchSobelEdge(unsigned char* d_in,
+                     unsigned char* d_out,
+                     int width, int height,
+                     cudaStream_t stream);
 
 #endif
