@@ -1,144 +1,101 @@
-#include <mpi.h>
-#include <cuda_runtime.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "kernels.h"
+#include <mpi.h>                  // MPI for distributed processing
+#include <cuda_runtime.h>        // CUDA runtime for GPU operations
+#include <iostream>              // Standard C++ I/O
+#include "image_processing.cuh"  // Header for custom CUDA kernels (e.g., sobel_filter)
+#include "clockcycle.h"          // Timing utility for POWER9 cycle counts
 
-// Timing function (now used)
-static __inline__ unsigned long long getticks(void) {
-    unsigned int tbl, tbu0, tbu1;
-    do {
-        __asm__ __volatile__("mftbu %0" : "=r"(tbu0));
-        __asm__ __volatile__("mftb %0" : "=r"(tbl));
-        __asm__ __volatile__("mftbu %0" : "=r"(tbu1));
-    } while (tbu0 != tbu1);
-    return (((unsigned long long)tbu0) << 32) | tbl;
-}
+// Define constants for image dimensions and image size
+#define IMAGE_SIZE 256*256            // Total pixels per image
+#define WIDTH 256                     // Image width
+#define HEIGHT 256                    // Image height
+#define WEAK_SCALING_IMAGES_PER_RANK 10  // In weak scaling, each rank processes this many images
 
-// Updated halo exchange declaration
-void exchange_halos(unsigned char* local_data, int width, int height,
-                    int rank, int world_size);
+int main(int argc, char** argv) {
+    MPI_Init(&argc, &argv);  // Initialize MPI environment
+    
+    int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);  // Get current process ID
+    MPI_Comm_size(MPI_COMM_WORLD, &size);  // Get total number of processes
 
-int main(int argc, char *argv[]) {
-    MPI_Init(&argc, &argv);
-    int rank, world_size;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+    // Determine if running in weak or strong scaling mode
+    bool weak_scaling = atoi(argv[1]);  // argv[1] should be 0 or 1
 
-    if (argc != 3) {
-        if (rank == 0) fprintf(stderr, "Usage: %s <input.raw> <output.raw>\n", argv[0]);
-        MPI_Finalize();
-        return EXIT_FAILURE;
-    }
+    // Determine how many images each rank will process
+    // Weak scaling: fixed number per rank
+    // Strong scaling: total images divided across ranks
+    int images_per_rank = weak_scaling ? WEAK_SCALING_IMAGES_PER_RANK : 640 / size;
 
-    // Timing and dimensions setup (unchanged)
-    unsigned long long start_time, end_time;
-    double total_time = 0.0;
-    int global_width, global_height;
-    if (rank == 0) {
-        char header_file[256];
-        snprintf(header_file, sizeof(header_file), "%s.header", argv[1]);
-        FILE *header = fopen(header_file, "r");
-        fscanf(header, "%d %d", &global_width, &global_height);
-        fclose(header);
-    }
-    MPI_Bcast(&global_width, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&global_height, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    // Open input and output files in parallel using MPI I/O
+    MPI_File input_file, output_file;
+    MPI_File_open(MPI_COMM_WORLD, "input_data.dat", MPI_MODE_RDONLY, MPI_INFO_NULL, &input_file);
+    MPI_File_open(MPI_COMM_WORLD, "output_data.dat", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &output_file);
 
-    // Calculate local chunk dimensions (unchanged)
-    int local_rows = global_height / world_size;
-    int remainder = global_height % world_size;
-    int local_height = local_rows + (rank < remainder ? 1 : 0) + 2;
-    unsigned char* h_data = (unsigned char*)malloc(global_width * local_height * sizeof(unsigned char));
-    memset(h_data, 0, global_width * local_height);
+    // Allocate pinned host memory for input and output image buffers
+    unsigned char* h_images = new unsigned char[images_per_rank * IMAGE_SIZE];
+    unsigned char* h_results = new unsigned char[images_per_rank * IMAGE_SIZE];
 
-    // Calculate MPI-IO offsets using prefix sum
-    int local_data_size = (local_height - 2) * global_width;
-    int offset = 0;
-    int prefix_sum = 0;
-    MPI_Exscan(&local_data_size, &prefix_sum, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-    if (rank != 0) offset = prefix_sum;
+    // Calculate file offset for this rank to read its portion
+    MPI_Offset offset = rank * images_per_rank * IMAGE_SIZE;
 
-    // MPI-IO Read
-    start_time = getticks();
-    MPI_File fh;
-    MPI_File_open(MPI_COMM_WORLD, argv[1], MPI_MODE_RDONLY, MPI_INFO_NULL, &fh);
-    MPI_File_read_at_all(fh,
-                        offset,
-                        h_data + global_width,  // Skip top halo
-                        local_data_size,
-                        MPI_BYTE, MPI_STATUS_IGNORE);
-    MPI_File_close(&fh);
+    // Each rank reads its image chunk from the input file collectively
+    MPI_File_read_at_all(input_file, offset, h_images, images_per_rank * IMAGE_SIZE, MPI_BYTE, MPI_STATUS_IGNORE);
 
-    // Halo exchange (unchanged)
-    exchange_halos(h_data, global_width, local_height-2, rank, world_size);
+    // Allocate memory on the GPU for input and output image buffers
+    unsigned char *d_input, *d_output;
+    cudaMalloc(&d_input, images_per_rank * IMAGE_SIZE);
+    cudaMalloc(&d_output, images_per_rank * IMAGE_SIZE);
 
-    // CUDA processing with separate buffers
-    unsigned char *d_in, *d_out;
-    size_t buffer_size = global_width * local_height * sizeof(unsigned char);
-    cudaMalloc((void**)&d_in, buffer_size);
-    cudaMalloc((void**)&d_out, buffer_size);
+    // Create a CUDA stream to allow asynchronous operations
     cudaStream_t stream;
     cudaStreamCreate(&stream);
 
-    start_time = getticks();
-    cudaMemcpyAsync(d_in, h_data, buffer_size, cudaMemcpyHostToDevice, stream);
+    // Timing variables for I/O measurement
+    uint64_t io_start, io_end;
+    double io_time = 0;
 
-    // Process with separate buffers
-    launchGaussianBlur(d_in + global_width, 
-                      d_out + global_width,
-                      global_width, local_height-2, stream);
+    // GPU processing loop for each image
+    for (int i = 0; i < images_per_rank; ++i) {
+        // Asynchronously copy one image from host to device
+        cudaMemcpyAsync(&d_input[i * IMAGE_SIZE], &h_images[i * IMAGE_SIZE],
+                        IMAGE_SIZE, cudaMemcpyHostToDevice, stream);
 
-    launchSobelEdge(d_out + global_width,
-                   d_in + global_width,
-                   global_width, local_height-2, stream);
+        // Launch the Sobel filter kernel on the image
+        dim3 blocks(8, 8);       // 8x8 grid of blocks
+        dim3 threads(32, 32);    // 32x32 threads per block (covers 256x256 image)
+        sobel_filter<<<blocks, threads, 0, stream>>>(
+            &d_input[i * IMAGE_SIZE], &d_output[i * IMAGE_SIZE], WIDTH, HEIGHT);
 
-    cudaMemcpyAsync(h_data, d_in, buffer_size, cudaMemcpyDeviceToHost, stream);
+        // Asynchronously copy processed image back to host
+        cudaMemcpyAsync(&h_results[i * IMAGE_SIZE], &d_output[i * IMAGE_SIZE],
+                        IMAGE_SIZE, cudaMemcpyDeviceToHost, stream);
+    }
+
+    // Wait for all GPU operations to finish before moving on
     cudaStreamSynchronize(stream);
-    end_time = getticks();
-    total_time = end_time - start_time;
 
-    // MPI-IO Write with corrected offset
-    MPI_File_open(MPI_COMM_WORLD, argv[2],
-                 MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fh);
-    MPI_File_write_at_all(fh,
-                         offset,
-                         h_data + global_width,
-                         local_data_size,
-                         MPI_BYTE, MPI_STATUS_IGNORE);
-    MPI_File_close(&fh);
+    // Start timing for I/O
+    io_start = clock_now();
 
-    // Cleanup
-    free(h_data);
-    cudaFree(d_in);
-    cudaFree(d_out);
-    
+    // Write all processed images to output file collectively
+    MPI_File_write_at_all(output_file, offset, h_results,
+                          images_per_rank * IMAGE_SIZE, MPI_BYTE, MPI_STATUS_IGNORE);
+
+    io_end = clock_now();  // End timing
+
+    // Free GPU and CPU resources
+    cudaFree(d_input);
+    cudaFree(d_output);
+    delete[] h_images;
+    delete[] h_results;
+    MPI_File_close(&input_file);
+    MPI_File_close(&output_file);
+
+    // Only rank 0 prints timing stats
     if (rank == 0) {
-        printf("Processing time: %llu ticks\n", total_time);
+        io_time = (double)(io_end - io_start) / 512000000.0;  // Convert cycles to seconds
+        std::cout << "I/O Time: " << io_time << "s\n";
     }
 
-    MPI_Finalize();
-    return EXIT_SUCCESS;
-}
-
-// Updated halo exchange implementation
-void exchange_halos(unsigned char* local_data, int width, int height,
-                    int rank, int world_size) {
-    MPI_Request reqs[4];
-    int active = 0;
-
-    // Top neighbor
-    if (rank > 0) {
-        MPI_Isend(local_data + width, width, MPI_BYTE, rank-1, 0, MPI_COMM_WORLD, &reqs[active++]);
-        MPI_Irecv(local_data, width, MPI_BYTE, rank-1, 0, MPI_COMM_WORLD, &reqs[active++]);
-    }
-
-    // Bottom neighbor
-    if (rank < world_size-1) {
-        MPI_Isend(local_data + (height-2)*width, width, MPI_BYTE, rank+1, 0, MPI_COMM_WORLD, &reqs[active++]);
-        MPI_Irecv(local_data + (height-1)*width, width, MPI_BYTE, rank+1, 0, MPI_COMM_WORLD, &reqs[active++]);
-    }
-
-    MPI_Waitall(active, reqs, MPI_STATUS_IGNORE);
+    MPI_Finalize();  // Clean up MPI environment
+    return 0;
 }
