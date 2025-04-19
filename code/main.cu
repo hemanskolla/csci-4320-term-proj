@@ -24,6 +24,8 @@ int main(int argc, char** argv) {
     // Weak scaling: fixed number per rank
     // Strong scaling: total images divided across ranks
     int images_per_rank = weak_scaling ? WEAK_SCALING_IMAGES_PER_RANK : 640 / size;
+    uint64_t io_start, io_end;
+    io_start = clock_now();
 
     // Open input and output files in parallel using MPI I/O
     MPI_File input_file, output_file;
@@ -50,7 +52,6 @@ int main(int argc, char** argv) {
     cudaStreamCreate(&stream);
 
     // Timing variables for I/O measurement
-    uint64_t io_start, io_end;
     double io_time = 0;
 
     // GPU processing loop for each image
@@ -74,7 +75,6 @@ int main(int argc, char** argv) {
     cudaStreamSynchronize(stream);
 
     // Start timing for I/O
-    io_start = clock_now();
 
     // Write all processed images to output file collectively
     MPI_File_write_at_all(output_file, offset, h_results,
@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
     // Only rank 0 prints timing stats
     if (rank == 0) {
         io_time = (double)(io_end - io_start) / 512000000.0;  // Convert cycles to seconds
-        std::cout << "I/O Time: " << io_time << "s\n";
+        std::cout << "Total Time: " << io_time << "s\n";
     }
 
     MPI_Finalize();  // Clean up MPI environment

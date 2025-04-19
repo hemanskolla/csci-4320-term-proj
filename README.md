@@ -6,132 +6,256 @@ Compile with make clean && make
 
 # Weak Scaling:
 
-# 1 Rank:
+For each rank, run:
 
-python input_data.py data/ weak_10.dat --max-images 10
+python input_data.py data/ input_data.dat --max-images (rank \* 10)
 
-salloc -N 1 --partition=el8-rpi --gres=gpu:1 -t 10
+after moving the output_data.dat to local run:
+python output_data.py output_data.dat (output folder name)
 
+# 1 Rank strong.sh:
+
+#!/bin/bash
+#SBATCH --job-name=img-strong
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --gres=gpu:1
+#SBATCH --time=00:10:00
+#SBATCH --partition=el8-rpi
+
+module purge
 module load xl_r spectrum-mpi cuda/11.2
-srun -N 1 --ntasks=1 --ntasks-per-node=1 ./main 1
 
-# 2 Ranks:
+export IBM_MPI_LICENSE_ACCEPT=yes
 
-python input_data.py data/ weak_20.dat --max-images 20
+mpirun --bind-to core -np $SLURM_NTASKS ./main 1
 
-salloc -N 1 --partition=el8-rpi --gres=gpu:2 -t 10
+# 2 Ranks strong.sh:
 
+#!/bin/bash
+#SBATCH --job-name=img-strong
+#SBATCH --nodes=1
+#SBATCH --ntasks=2
+#SBATCH --gres=gpu:2
+#SBATCH --time=00:10:00
+#SBATCH --partition=el8-rpi
+
+module purge
 module load xl_r spectrum-mpi cuda/11.2
-srun -N 1 --ntasks=2 --ntasks-per-node=2 ./main 1
 
-# 4 Ranks:
+export IBM_MPI_LICENSE_ACCEPT=yes
 
-python input_data.py data/ weak_40.dat --max-images 40
+mpirun --bind-to core -np $SLURM_NTASKS ./main 1
 
-salloc -N 1 --partition=el8-rpi --gres=gpu:4 -t 10
+# 4 Ranks strong.sh:
 
+#!/bin/bash
+#SBATCH --job-name=img-strong
+#SBATCH --nodes=1
+#SBATCH --ntasks=4
+#SBATCH --gres=gpu:4
+#SBATCH --time=00:10:00
+#SBATCH --partition=el8-rpi
+
+module purge
 module load xl_r spectrum-mpi cuda/11.2
-srun -N 1 --ntasks=4 --ntasks-per-node=4 ./main 1
 
-# 8 Ranks:
+export IBM_MPI_LICENSE_ACCEPT=yes
 
-python input_data.py data/ weak_80.dat --max-images 80
+mpirun --bind-to core -np $SLURM_NTASKS ./main 1
 
-salloc -N 2 --partition=el8-rpi --gres=gpu:4 -t 10
+# 8 Ranks strong.sh:
 
+#!/bin/bash
+#SBATCH --job-name=img-strong
+#SBATCH --nodes=2
+#SBATCH --ntasks=8
+#SBATCH --gres=gpu:4
+#SBATCH --time=00:10:00
+#SBATCH --partition=el8-rpi
+
+module purge
 module load xl_r spectrum-mpi cuda/11.2
-srun -N 2 --ntasks=8 --ntasks-per-node=4 ./main 1
 
-output_data.dat should have been created
+export IBM_MPI_LICENSE_ACCEPT=yes
 
-# 16 Ranks:
+mpirun --bind-to core -np $SLURM_NTASKS ./main 1
 
-python input_data.py data/ weak_10.dat --max-images 10
+# 16 Ranks strong.sh:
 
-salloc -N 1 --partition=el8-rpi --gres=gpu:1 -t 10
+#!/bin/bash
+#SBATCH --job-name=img-strong
+#SBATCH --nodes=4
+#SBATCH --ntasks=16
+#SBATCH --gres=gpu:4
+#SBATCH --time=00:10:00
+#SBATCH --partition=el8-rpi
 
+module purge
 module load xl_r spectrum-mpi cuda/11.2
-srun -N 1 --ntasks=1 --ntasks-per-node=1 ./main 1
 
-# 32 Ranks:
+export IBM_MPI_LICENSE_ACCEPT=yes
 
-python input_data.py data/ weak_320.dat --max-images 320
+mpirun --bind-to core -np $SLURM_NTASKS ./main 1
 
-salloc -N 8 --partition=el8-rpi --gres=gpu:4 -t 10
+# 32 Ranks strong.sh:
 
+#!/bin/bash
+#SBATCH --job-name=img-strong
+#SBATCH --nodes=8
+#SBATCH --ntasks=32
+#SBATCH --gres=gpu:4
+#SBATCH --time=00:10:00
+#SBATCH --partition=el8-rpi
+
+module purge
 module load xl_r spectrum-mpi cuda/11.2
-srun -N 8 --ntasks=32 --ntasks-per-node=4 ./main 1
 
-# 64 Ranks:
+export IBM_MPI_LICENSE_ACCEPT=yes
 
-python input_data.py data/ weak_640.dat --max-images 640
+mpirun --bind-to core -np $SLURM_NTASKS ./main 1
 
-salloc -N 16 --partition=el8-rpi --gres=gpu:4 -t 10
+# 64 Ranks strong.sh:
 
+#!/bin/bash
+#SBATCH --job-name=img-strong
+#SBATCH --nodes=16
+#SBATCH --ntasks=64
+#SBATCH --gres=gpu:4
+#SBATCH --time=00:10:00
+#SBATCH --partition=el8-rpi
+
+module purge
 module load xl_r spectrum-mpi cuda/11.2
-srun -N 16 --ntasks=64 --ntasks-per-node=4 ./main 1
+
+export IBM_MPI_LICENSE_ACCEPT=yes
+
+mpirun --bind-to core -np $SLURM_NTASKS ./main 1
 
 # Strong Scaling
 
-# 1 Rank:
+Before starting run:
 
-python input_data.py data/ strong_640.dat --max-images 640
+python input_data.py data/ input_data.dat --max-images 640
 
-salloc -N 1 --partition=el8-rpi --gres=gpu:1 -t 10
+after moving the output_data.dat to local run:
+python output_data.py output_data.dat (output folder name)
 
+# 1 Rank weak.sh:
+
+#!/bin/bash
+#SBATCH --job-name=img-weak
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --gres=gpu:1
+#SBATCH --time=00:10:00
+#SBATCH --partition=el8-rpi
+
+module purge
 module load xl_r spectrum-mpi cuda/11.2
-srun -N 1 --ntasks=1 --ntasks-per-node=1 ./main 0
 
-# 2 Ranks:
+export IBM_MPI_LICENSE_ACCEPT=yes
 
-python input_data.py data/ strong_640.dat --max-images 640
+mpirun --bind-to core -np $SLURM_NTASKS ./main 0
 
-salloc -N 1 --partition=el8-rpi --gres=gpu:2 -t 10
+# 2 Ranks weak.sh:
 
+#!/bin/bash
+#SBATCH --job-name=img-weak
+#SBATCH --nodes=1
+#SBATCH --ntasks=2
+#SBATCH --gres=gpu:2
+#SBATCH --time=00:10:00
+#SBATCH --partition=el8-rpi
+
+module purge
 module load xl_r spectrum-mpi cuda/11.2
-srun -N 1 --ntasks=2 --ntasks-per-node=2 ./main 0
 
-# 4 Ranks:
+export IBM_MPI_LICENSE_ACCEPT=yes
 
-python input_data.py data/ strong_640.dat --max-images 640
+mpirun --bind-to core -np $SLURM_NTASKS ./main 0
 
-salloc -N 1 --partition=el8-rpi --gres=gpu:4 -t 10
+# 4 Ranks weak.sh:
 
+#!/bin/bash
+#SBATCH --job-name=img-weak
+#SBATCH --nodes=1
+#SBATCH --ntasks=4
+#SBATCH --gres=gpu:4
+#SBATCH --time=00:10:00
+#SBATCH --partition=el8-rpi
+
+module purge
 module load xl_r spectrum-mpi cuda/11.2
-srun -N 1 --ntasks=4 --ntasks-per-node=4 ./main 0
 
-# 8 Ranks:
+export IBM_MPI_LICENSE_ACCEPT=yes
 
-python input_data.py data/ strong_640.dat --max-images 640
+mpirun --bind-to core -np $SLURM_NTASKS ./main 0
 
-salloc -N 2 --partition=el8-rpi --gres=gpu:4 -t 10
+# 8 Ranks weak.sh:
 
+#!/bin/bash
+#SBATCH --job-name=img-weak
+#SBATCH --nodes=2
+#SBATCH --ntasks=8
+#SBATCH --gres=gpu:4
+#SBATCH --time=00:10:00
+#SBATCH --partition=el8-rpi
+
+module purge
 module load xl_r spectrum-mpi cuda/11.2
-srun -N 2 --ntasks=8 --ntasks-per-node=4 ./main 0
 
-# 16 Ranks:
+export IBM_MPI_LICENSE_ACCEPT=yes
 
-python input_data.py data/ strong_640.dat --max-images 640
+mpirun --bind-to core -np $SLURM_NTASKS ./main 0
 
-salloc -N 4 --partition=el8-rpi --gres=gpu:4 -t 10
+# 16 Ranks weak.sh:
 
+#!/bin/bash
+#SBATCH --job-name=img-weak
+#SBATCH --nodes=4
+#SBATCH --ntasks=16
+#SBATCH --gres=gpu:4
+#SBATCH --time=00:10:00
+#SBATCH --partition=el8-rpi
+
+module purge
 module load xl_r spectrum-mpi cuda/11.2
-srun -N 4 --ntasks=16 --ntasks-per-node=4 ./main 0
 
-# 32 Ranks:
+export IBM_MPI_LICENSE_ACCEPT=yes
 
-python input_data.py data/ strong_640.dat --max-images 640
+mpirun --bind-to core -np $SLURM_NTASKS ./main 0
 
-salloc -N 8 --partition=el8-rpi --gres=gpu:4 -t 10
+# 32 Ranks weak.sh:
 
+#!/bin/bash
+#SBATCH --job-name=img-weak
+#SBATCH --nodes=8
+#SBATCH --ntasks=32
+#SBATCH --gres=gpu:4
+#SBATCH --time=00:10:00
+#SBATCH --partition=el8-rpi
+
+module purge
 module load xl_r spectrum-mpi cuda/11.2
-srun -N 8 --ntasks=32 --ntasks-per-node=4 ./main 0
 
-# 64 Ranks:
+export IBM_MPI_LICENSE_ACCEPT=yes
 
-python input_data.py data/ strong_640.dat --max-images 640
+mpirun --bind-to core -np $SLURM_NTASKS ./main 0
 
-salloc -N 16 --partition=el8-rpi --gres=gpu:4 -t 10
+# 64 Ranks weak.sh:
 
+#!/bin/bash
+#SBATCH --job-name=img-weak
+#SBATCH --nodes=16
+#SBATCH --ntasks=64
+#SBATCH --gres=gpu:4
+#SBATCH --time=00:10:00
+#SBATCH --partition=el8-rpi
+
+module purge
 module load xl_r spectrum-mpi cuda/11.2
-srun -N 16 --ntasks=64 --ntasks-per-node=4 ./main 0
+
+export IBM_MPI_LICENSE_ACCEPT=yes
+
+mpirun --bind-to core -np $SLURM_NTASKS ./main 0
