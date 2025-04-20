@@ -8,7 +8,7 @@
 #define IMAGE_SIZE 256*256            // Total pixels per image
 #define WIDTH 256                     // Image width
 #define HEIGHT 256                    // Image height
-#define WEAK_SCALING_IMAGES_PER_RANK 1000  // In weak scaling, each rank processes this many images
+#define WEAK_SCALING_IMAGES_PER_RANK 8000  // In weak scaling, each rank processes this many images
 
 int main(int argc, char** argv) {
     MPI_Init(&argc, &argv);  // Initialize MPI environment
