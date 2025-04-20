@@ -1,0 +1,15 @@
+Strong Scaling
+
+1 Rank: 0.241105s
+
+2 Ranks: 0.449133s
+
+4 Ranks: 0.728292s
+
+8 Ranks: 0.827669s
+
+16 Ranks: 0.690228s
+
+32 Ranks:
+
+64 Ranks:

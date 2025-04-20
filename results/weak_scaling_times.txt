@@ -1,12 +1,14 @@
-1 Rank:
+Weak Scaling:
 
-2 Ranks:
+1 Rank: 0.174251s
 
-4 Ranks:
+2 Ranks: 0.408991s
 
-8 Ranks:
+4 Ranks: 0.818318s
 
-16 Ranks:
+8 Ranks: 0.664184s
+
+16 Ranks: 0.856808s
 
 32 Ranks:
 

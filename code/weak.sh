@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=img-weak
-#SBATCH --nodes=16
-#SBATCH --ntasks=64
-#SBATCH --gres=gpu:4
-#SBATCH --time=00:10:00
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --gres=gpu:1
+#SBATCH --time=00:01:00
 #SBATCH --partition=el8
 
 module purge
