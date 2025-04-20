@@ -4,7 +4,7 @@ import shutil
 # Set these paths
 source_dir = "data"  # Folder with original images
 output_dir = "data_10"  # Folder to save 1000x copies
-multiplication_factor = 10  # How many times to duplicate each image
+multiplication_factor = 100  # How many times to duplicate each image
 
 # Create output directory if it doesn't exist
 os.makedirs(output_dir, exist_ok=True)
