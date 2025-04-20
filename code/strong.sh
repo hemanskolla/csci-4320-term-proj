@@ -4,7 +4,7 @@
 #SBATCH --ntasks=64
 #SBATCH --gres=gpu:4
 #SBATCH --time=00:10:00
-#SBATCH --partition=el8-rpi
+#SBATCH --partition=el8
 
 module purge
 module load xl_r spectrum-mpi cuda/11.2

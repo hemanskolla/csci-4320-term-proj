@@ -21,7 +21,7 @@ python output_data.py output_data.dat (output folder name)
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
 #SBATCH --time=00:10:00
-#SBATCH --partition=el8-rpi
+#SBATCH --partition=el8
 
 module purge
 module load xl_r spectrum-mpi cuda/11.2
@@ -38,7 +38,7 @@ mpirun --bind-to core -np $SLURM_NTASKS ./main 1
 #SBATCH --ntasks=2
 #SBATCH --gres=gpu:2
 #SBATCH --time=00:10:00
-#SBATCH --partition=el8-rpi
+#SBATCH --partition=el8
 
 module purge
 module load xl_r spectrum-mpi cuda/11.2
@@ -55,7 +55,7 @@ mpirun --bind-to core -np $SLURM_NTASKS ./main 1
 #SBATCH --ntasks=4
 #SBATCH --gres=gpu:4
 #SBATCH --time=00:10:00
-#SBATCH --partition=el8-rpi
+#SBATCH --partition=el8
 
 module purge
 module load xl_r spectrum-mpi cuda/11.2
@@ -72,7 +72,7 @@ mpirun --bind-to core -np $SLURM_NTASKS ./main 1
 #SBATCH --ntasks=8
 #SBATCH --gres=gpu:4
 #SBATCH --time=00:10:00
-#SBATCH --partition=el8-rpi
+#SBATCH --partition=el8
 
 module purge
 module load xl_r spectrum-mpi cuda/11.2
@@ -89,7 +89,7 @@ mpirun --bind-to core -np $SLURM_NTASKS ./main 1
 #SBATCH --ntasks=16
 #SBATCH --gres=gpu:4
 #SBATCH --time=00:10:00
-#SBATCH --partition=el8-rpi
+#SBATCH --partition=el8
 
 module purge
 module load xl_r spectrum-mpi cuda/11.2
@@ -106,7 +106,7 @@ mpirun --bind-to core -np $SLURM_NTASKS ./main 1
 #SBATCH --ntasks=32
 #SBATCH --gres=gpu:4
 #SBATCH --time=00:10:00
-#SBATCH --partition=el8-rpi
+#SBATCH --partition=el8
 
 module purge
 module load xl_r spectrum-mpi cuda/11.2
@@ -123,7 +123,7 @@ mpirun --bind-to core -np $SLURM_NTASKS ./main 1
 #SBATCH --ntasks=64
 #SBATCH --gres=gpu:4
 #SBATCH --time=00:10:00
-#SBATCH --partition=el8-rpi
+#SBATCH --partition=el8
 
 module purge
 module load xl_r spectrum-mpi cuda/11.2
@@ -149,7 +149,7 @@ python output_data.py output_data.dat (output folder name)
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
 #SBATCH --time=00:10:00
-#SBATCH --partition=el8-rpi
+#SBATCH --partition=el8
 
 module purge
 module load xl_r spectrum-mpi cuda/11.2
@@ -166,7 +166,7 @@ mpirun --bind-to core -np $SLURM_NTASKS ./main 0
 #SBATCH --ntasks=2
 #SBATCH --gres=gpu:2
 #SBATCH --time=00:10:00
-#SBATCH --partition=el8-rpi
+#SBATCH --partition=el8
 
 module purge
 module load xl_r spectrum-mpi cuda/11.2
@@ -183,7 +183,7 @@ mpirun --bind-to core -np $SLURM_NTASKS ./main 0
 #SBATCH --ntasks=4
 #SBATCH --gres=gpu:4
 #SBATCH --time=00:10:00
-#SBATCH --partition=el8-rpi
+#SBATCH --partition=el8
 
 module purge
 module load xl_r spectrum-mpi cuda/11.2
@@ -200,7 +200,7 @@ mpirun --bind-to core -np $SLURM_NTASKS ./main 0
 #SBATCH --ntasks=8
 #SBATCH --gres=gpu:4
 #SBATCH --time=00:10:00
-#SBATCH --partition=el8-rpi
+#SBATCH --partition=el8
 
 module purge
 module load xl_r spectrum-mpi cuda/11.2
@@ -217,7 +217,7 @@ mpirun --bind-to core -np $SLURM_NTASKS ./main 0
 #SBATCH --ntasks=16
 #SBATCH --gres=gpu:4
 #SBATCH --time=00:10:00
-#SBATCH --partition=el8-rpi
+#SBATCH --partition=el8
 
 module purge
 module load xl_r spectrum-mpi cuda/11.2
@@ -234,7 +234,7 @@ mpirun --bind-to core -np $SLURM_NTASKS ./main 0
 #SBATCH --ntasks=32
 #SBATCH --gres=gpu:4
 #SBATCH --time=00:10:00
-#SBATCH --partition=el8-rpi
+#SBATCH --partition=el8
 
 module purge
 module load xl_r spectrum-mpi cuda/11.2
@@ -251,7 +251,7 @@ mpirun --bind-to core -np $SLURM_NTASKS ./main 0
 #SBATCH --ntasks=64
 #SBATCH --gres=gpu:4
 #SBATCH --time=00:10:00
-#SBATCH --partition=el8-rpi
+#SBATCH --partition=el8
 
 module purge
 module load xl_r spectrum-mpi cuda/11.2
