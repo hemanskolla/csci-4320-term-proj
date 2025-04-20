@@ -1,6 +1,6 @@
 Weak Scaling:
 
-8 Rank: 0.174251s
+8 Rank: 0.214251s
 
 4 Ranks: 0.208991s
 
