@@ -89,57 +89,6 @@ export IBM_MPI_LICENSE_ACCEPT=yes
 
 mpirun --bind-to core -np $SLURM_NTASKS ./main 1
 
-# 16 Ranks weak.sh:
-
-#!/bin/bash
-#SBATCH --job-name=img-weak
-#SBATCH --nodes=4
-#SBATCH --ntasks=16
-#SBATCH --gres=gpu:4
-#SBATCH --time=00:01:00
-#SBATCH --partition=el8
-
-module purge
-module load xl_r spectrum-mpi cuda/11.2
-
-export IBM_MPI_LICENSE_ACCEPT=yes
-
-mpirun --bind-to core -np $SLURM_NTASKS ./main 1
-
-# 32 Ranks weak.sh:
-
-#!/bin/bash
-#SBATCH --job-name=img-weak
-#SBATCH --nodes=8
-#SBATCH --ntasks=32
-#SBATCH --gres=gpu:4
-#SBATCH --time=00:01:00
-#SBATCH --partition=el8
-
-module purge
-module load xl_r spectrum-mpi cuda/11.2
-
-export IBM_MPI_LICENSE_ACCEPT=yes
-
-mpirun --bind-to core -np $SLURM_NTASKS ./main 1
-
-# 64 Ranks weak.sh:
-
-#!/bin/bash
-#SBATCH --job-name=img-weak
-#SBATCH --nodes=16
-#SBATCH --ntasks=64
-#SBATCH --gres=gpu:4
-#SBATCH --time=00:01:00
-#SBATCH --partition=el8
-
-module purge
-module load xl_r spectrum-mpi cuda/11.2
-
-export IBM_MPI_LICENSE_ACCEPT=yes
-
-mpirun --bind-to core -np $SLURM_NTASKS ./main 1
-
 # Strong Scaling
 
 Before starting run:
@@ -206,57 +155,6 @@ mpirun --bind-to core -np $SLURM_NTASKS ./main 0
 #SBATCH --job-name=img-strong
 #SBATCH --nodes=2
 #SBATCH --ntasks=8
-#SBATCH --gres=gpu:4
-#SBATCH --time=00:01:00
-#SBATCH --partition=el8
-
-module purge
-module load xl_r spectrum-mpi cuda/11.2
-
-export IBM_MPI_LICENSE_ACCEPT=yes
-
-mpirun --bind-to core -np $SLURM_NTASKS ./main 0
-
-# 16 Ranks strong.sh:
-
-#!/bin/bash
-#SBATCH --job-name=img-strong
-#SBATCH --nodes=4
-#SBATCH --ntasks=16
-#SBATCH --gres=gpu:4
-#SBATCH --time=00:01:00
-#SBATCH --partition=el8
-
-module purge
-module load xl_r spectrum-mpi cuda/11.2
-
-export IBM_MPI_LICENSE_ACCEPT=yes
-
-mpirun --bind-to core -np $SLURM_NTASKS ./main 0
-
-# 32 Ranks strong.sh:
-
-#!/bin/bash
-#SBATCH --job-name=img-strong
-#SBATCH --nodes=8
-#SBATCH --ntasks=32
-#SBATCH --gres=gpu:4
-#SBATCH --time=00:01:00
-#SBATCH --partition=el8
-
-module purge
-module load xl_r spectrum-mpi cuda/11.2
-
-export IBM_MPI_LICENSE_ACCEPT=yes
-
-mpirun --bind-to core -np $SLURM_NTASKS ./main 0
-
-# 64 Ranks strong.sh:
-
-#!/bin/bash
-#SBATCH --job-name=img-strong
-#SBATCH --nodes=16
-#SBATCH --ntasks=64
 #SBATCH --gres=gpu:4
 #SBATCH --time=00:01:00
 #SBATCH --partition=el8
