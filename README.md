@@ -1,5 +1,13 @@
 # csci-4320-term-proj
 
+Depending on dataset change:
+
+- #define IMAGE_SIZE 256*256 (img len * img width)
+- #define WIDTH 256 (img width)
+- #define HEIGHT 256 (img height)
+- #define WEAK_SCALING_IMAGES_PER_RANK 8000 (how many images you want to process per rank)
+- #define STRONG_SCALING_IMAGES_PER_RANK 64000 (the total number of images to be processed)
+
 # Workflow:
 
 Compile with make clean && make

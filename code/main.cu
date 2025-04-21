@@ -9,6 +9,7 @@
 #define WIDTH 256                     // Image width
 #define HEIGHT 256                    // Image height
 #define WEAK_SCALING_IMAGES_PER_RANK 8000  // In weak scaling, each rank processes this many images
+#define STRONG_SCALING_IMAGES_PER_RANK 64000  // In strong scaling, this many images are processed
 
 int main(int argc, char** argv) {
     MPI_Init(&argc, &argv);  // Initialize MPI environment
@@ -23,7 +24,7 @@ int main(int argc, char** argv) {
     // Determine how many images each rank will process
     // Weak scaling: fixed number per rank
     // Strong scaling: total images divided across ranks
-    int images_per_rank = weak_scaling ? WEAK_SCALING_IMAGES_PER_RANK : 64000 / size;
+    int images_per_rank = weak_scaling ? WEAK_SCALING_IMAGES_PER_RANK : STRONG_SCALING_IMAGES_PER_RANK / size;
     uint64_t io_start, io_end;
     io_start = clock_now();
 

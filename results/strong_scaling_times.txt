@@ -1,6 +1,6 @@
 Strong Scaling
 
-8 Rank: 0.241105s
+8 Rank: 0.311105s
 
 4 Ranks: 0.449133s
 
