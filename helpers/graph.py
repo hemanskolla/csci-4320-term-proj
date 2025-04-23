@@ -20,8 +20,8 @@ strong = [0.922766, 0.728292, 0.449133, 0.311105]
 
 ranks = [1, 2, 4, 8]
 
-speedup_weak = [weak[i] / weak[0] for i in range(len(weak))]
-speedup_strong = [strong[i] / strong[0] for i in range(len(strong))]
+speedup_weak = [weak[0] / weak[i] for i in range(len(weak))]
+speedup_strong = [strong[0] / strong[i] for i in range(len(strong))]
 
 import matplotlib.pyplot as plt
 
