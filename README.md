@@ -16,7 +16,7 @@ Compile with make clean && make
 
 For each rank, run:
 
-python input_data.py data/ input_data.dat --max-images (rank \* 10)
+python input_data.py data/ input_data.dat --max-images (rank \* 8000)
 
 after moving the output_data.dat to local run:
 python output_data.py output_data.dat (output folder name)

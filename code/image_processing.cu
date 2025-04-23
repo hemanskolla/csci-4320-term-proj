@@ -1,4 +1,4 @@
-#include "image_processing.cuh"  // Declaration for sobel_filter (optional here)
+#include "image_processing.cuh"  // Declaration for sobel_filter
 #include <cuda_runtime.h>        // CUDA runtime API
 #include <math.h>                // For sqrtf()
 
